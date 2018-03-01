@@ -33,9 +33,9 @@ struct Ride {
         return dist(p1, p2);
     }
 
-    int earliest() const
+    int latest() const
     {
-        // Earliest time you can start this ride and still finish it.
+        // latest time you can start this ride and still finish it.
         return fin - cost();
     }
 };
@@ -62,16 +62,16 @@ bool can_arrive(point p1, int t1, point p2, int t2)
 
 bool car_can_arrive(int icar, int iride)
 {
-    return can_arrive(car_position[icar], car_time[icar], rides[iride].p1, rides[iride].earliest());
+    return can_arrive(car_position[icar], car_time[icar], rides[iride].p1, rides[iride].latest());
 }
 
 vector<int> get_possible_cars(int iride)
 {
     vector<int> good;
+    good.reserve(ncars);
     for (int i = 0; i < ncars; ++i) {
         if (car_can_arrive(i, iride))
             good.push_back(i);
-            continue;
     }
     return good;
 }
@@ -80,16 +80,21 @@ int get_best_car(int iride)
 {
     // Pick the car which is closest.
     vector<int> possible = get_possible_cars(iride);
-    if (possible.empty()) {
+    if (possible.empty())
         return -1;
-    }
+
+    auto car_score = [&] (int icar)
+    {
+        return -dist(car_position[icar], rides[iride].p1);
+    };
 
     int ibest = -1;
     int best = 0;
-    for (auto i : possible) {
-        int now = dist(car_position[i], rides[iride].p1);
 
-        if (ibest == -1 || now < best) {
+    for (auto i : possible) {
+        int now = car_score(i);
+
+        if (ibest == -1 || now > best) {
             ibest = i;
             best = now;
         }
@@ -151,8 +156,6 @@ int main()
         rides[i].idx = i;
     }
 
-    sort(rides.begin(), rides.end());
-
     car_position.resize(ncars);
     car_time.resize(ncars);
     for (int i = 0; i < ncars; ++i) {
@@ -162,6 +165,7 @@ int main()
 
     int nnosat = 0;
 
+    sort(rides.begin(), rides.end());
     for (int i = 0; i < nrides; ++i) {
         int car = get_best_car(i);
         if (car == -1) {
