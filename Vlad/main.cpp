@@ -40,6 +40,7 @@ vector<int> graph[MAX_N];
 vector<bool> used;
 vector<int> best;
 vector<int> from;
+vector<bool> visited;
 vector<vector<int>> cars;
 
 
@@ -50,10 +51,9 @@ void readin(string filename) {
 
   rides.emplace_back(0, 0, 0, 0, 0, 0);
 
-  for (int i = 1; i <= N; i += 1) {
+  for (int i = 0; i < N; i += 1) {
     int sx, sy, fx, fy, s, f;
     fin >> sx >> sy >> fx >> fy >> s >> f;
-    cout << sx << sy << fx << fy << s << f << endl;
     rides.emplace_back(sx, sy, fx, fy, s, f, i);
   }
 
@@ -64,6 +64,7 @@ void readin(string filename) {
   best.resize(N + 1, 0);
   used.resize(N + 1, 0);
   from.resize(N + 1, 0);
+  visited.resize(N + 1, 0);
 }
 
 inline int dist(int i, int j) {
@@ -72,38 +73,41 @@ inline int dist(int i, int j) {
 
 void makeGraph() {
   for (int i = 0; i < N; i += 1) {
-    for (int j = 1; j <= N; j += 1) {
-      cerr << i << ' ' << rides[j].id << endl;
-      rides[j].print();
+    for (int j = i + 1; j <= N; j += 1) {
+      // cerr << i << ' ' << rides[j].id << endl;
+      // rides[i].print();
+      // rides[j].print();
       // worst time
       int total = rides[i].s + rides[i].dist + dist(i, j) + rides[j].dist;
-      cerr << dist(i,j) << ' ' << rides[j].dist << endl;
-      cerr << total << endl << endl;
 
-      if (total <= rides[i].f) {
+      if (total <= rides[j].f) {
         graph[i].emplace_back(j);
       }
     }
   }
 }
 
+int totalBooty = 0;
 void findPath() {
-  queue<PII> q;
-  q.emplace(0, 0);
+  auto comp = [](auto &p1, auto &p2) {
+    return best[p1.X] > best[p2.X];
+  };
+  priority_queue<PII, vector<PII>, decltype(comp)> pq(comp);
+  pq.emplace(0, 0);
 
-  while (not q.empty()) {
-    int node = q.front().X;
-    int t = q.front().Y;
-    q.pop();
+  while (not pq.empty()) {
+    int node = pq.top().X;
+    int t = pq.top().Y;
+    pq.pop();
 
-    cout << "node: " << node << endl;
-    cout << "best: " << best[node] << endl;
+    if (visited[node]) continue;
+    visited[node] = true;
 
     for (auto next: graph[node]) {
       if (used[next]) continue;
 
       int cost = t + dist(node, next);
-      cerr << next << ' ' << cost << endl;
+
       if (cost + rides[next].dist <= rides[next].f) {
         int booty = best[node] + rides[next].dist;
 
@@ -115,7 +119,7 @@ void findPath() {
         if (booty > best[next]) {
           best[next] = booty;
           from[next] = node;
-          q.emplace(next, cost + rides[next].dist);
+          pq.emplace(next, cost + rides[next].dist);
         }
       }
     }
@@ -126,24 +130,26 @@ void findPath() {
     if (best[i] > best[bestNode]) {
       bestNode = i;
     }
-
-    best[i] = 0;
   }
 
   cars.emplace_back();
   for (int i = bestNode; i != 0; i = from[i]) {
+    // rides[i].print();
     used[i] = true;
     cars.back().push_back(rides[i].id);
   }
 
   cout << "Won " << best[bestNode] << " $$$" << endl;
+  totalBooty += best[bestNode];
   fill(from.begin(), from.end(), 0);
   fill(best.begin(), best.end(), 0);
+  fill(visited.begin(), visited.end(), 0);
   reverse(cars.back().begin(), cars.back().end());
 }
 
 void solve() {
   makeGraph();
+  cout << "Made graph" << endl;
 
   for (int i = 0; i < F; i += 1) {
     findPath();
@@ -153,17 +159,19 @@ void solve() {
 void printout(string filename) {
   ofstream fout(filename + ".out");
 
-  for (int i = 0; i < F; i += 1) {
-    fout << cars[i].size() << ' ';
-    for (auto r: cars[i]) {
+  for (auto car: cars) {
+    fout << car.size() << ' ';
+    for (auto r: car) {
       fout << r << ' ';
     }
     fout << '\n';
   }
+  cout << "Total booty: " << totalBooty << endl;
 }
 
 int main(int argc, char* argv[]) {
   readin(argv[1]);
+  cout << "Finished reading" << endl;
   solve();
   printout(argv[1]);
 
