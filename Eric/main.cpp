@@ -7,6 +7,21 @@ using point = pair<int, int>;
 #define x first
 #define y second
 
+int total_score = 0;
+
+
+struct Rectangle {
+    point p1;
+    point p2;
+
+};
+
+bool inside(Rectangle r, point p)
+{
+    return min(r.p1.x, r.p2.x) <= p.x && p.x <= max(r.p1.x, r.p2.x) &&
+        min(r.p1.y, r.p2.y) <= p.y && p.y <= max(r.p1.y, r.p2.y);
+}
+
 int ride_start_time(int icar, int iride);
 int dist(point a, point b);
 
@@ -85,7 +100,16 @@ int get_best_car(int iride)
 
     auto car_score = [&] (int icar)
     {
-        return -dist(car_position[icar], rides[iride].p1);
+        int start_time = ride_start_time(icar, iride);
+        bool get_bonus = start_time == rides[iride].st;
+
+        int dist_score = dist(car_position[icar], rides[iride].p1);
+
+        int car_arrive = car_time[icar] + dist(car_position[icar], rides[iride].p1);
+        int waste_time = start_time - car_arrive;
+
+        // We want to maximize this.
+        return - 10 * dist_score * dist_score - 200 * waste_time * waste_time * dist_score + get_bonus * bonus *  bonus;
     };
 
     int ibest = -1;
@@ -122,7 +146,13 @@ void apply_car_chosen(int icar, int iride)
     car_position[icar] = rides[iride].p2;
     car_time[icar] = ride_start + rides[iride].cost();
 
-    rides_for_car[icar].push_back(iride);
+    total_score += rides[iride].cost();
+
+    if (ride_start == rides[iride].st) {
+        total_score += bonus;
+    }
+
+    rides_for_car[icar].push_back(rides[iride].idx);
 }
 
 void output()
@@ -178,7 +208,8 @@ int main()
     }
 
     output();
-    cerr << "could not satisfy " << nnosat << "\n";
+    cerr << "score " << total_score << "\n";
+    // cerr << "could not satisfy " << nnosat << "\n";
 
 
     return 0;
