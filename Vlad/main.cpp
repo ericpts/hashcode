@@ -21,12 +21,9 @@ struct Ride {
   int id;
 
   Ride(int _sx=0, int _sy=0, int _fx=0, int _fy=0, int _s=0, int _f=0, int _id=0)
-    : sx(_sx), sy(_sx), fx(_fx), fy(_fy), s(_s), f(_f), id(_id)
+    : sx(_sx), sy(_sy), fx(_fx), fy(_fy), s(_s), f(_f), id(_id)
   {
-    cout << "const" << endl;
     dist = abs(fx - sx) + abs(fy - sy);
-    cout << sx << sy << fx << fy << s << f << endl;
-    print();
   }
   void print() {
     cout << "Ride:" << endl;
@@ -51,7 +48,6 @@ void readin(string filename) {
 
   fin >> R >> C >> F >> N >> B >> T;
 
-  // starting node;
   rides.emplace_back(0, 0, 0, 0, 0, 0);
 
   for (int i = 1; i <= N; i += 1) {
