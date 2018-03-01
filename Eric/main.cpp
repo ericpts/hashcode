@@ -109,7 +109,7 @@ int get_best_car(int iride)
         int waste_time = start_time - car_arrive;
 
         // We want to maximize this.
-        return - 10 * dist_score * dist_score - 200 * waste_time * waste_time * dist_score + get_bonus * bonus *  bonus;
+        return - 10 * dist_score * dist_score - 400 * waste_time * waste_time * dist_score + get_bonus * bonus *  bonus;
     };
 
     int ibest = -1;
