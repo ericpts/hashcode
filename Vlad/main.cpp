@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -64,8 +66,10 @@ inline int dist(int i, int j) {
 void makeGraph() {
   for (int i = 0; i <= N; i += 1) {
     for (int j = 1; j <= N; j += 1) {
+      cerr << i << ' ' << j << endl;
       // worst time
-      int total = rides[i].f + dist(i, j) + rides[j].dist;
+      int total = rides[i].s + rides[i].dist + dist(i, j) + rides[j].dist;
+      cerr << total << endl;
 
       if (total <= rides[i].f) {
         graph[i].emplace_back(j);
@@ -83,18 +87,26 @@ void findPath() {
     int t = q.front().Y;
     q.pop();
 
+    cout << "node: " << node << endl;
+    cout << "best: " << best[node] << endl;
+
     for (auto next: graph[node]) {
       if (used[next]) continue;
 
-      int cost = dist(node, next) + rides[next].dist;
-      if (t + cost <= rides[next].f) {
+      int cost = t + dist(node, next);
+      cerr << next << ' ' << cost << endl;
+      if (cost + rides[next].dist <= rides[next].f) {
         int booty = best[node] + rides[next].dist;
-        if (t + dist(node, next) <= rides[next].s) booty += B;
+
+        if (cost <= rides[next].s) {
+          booty += B;
+          cost = max(cost, rides[next].s);
+        }
 
         if (booty > best[next]) {
           best[next] = booty;
           from[next] = node;
-          q.emplace(next, t + cost);
+          q.emplace(next, cost + rides[next].dist);
         }
       }
     }
@@ -111,7 +123,7 @@ void findPath() {
 
   cars.emplace_back();
   for (int i = bestNode; i != 0; i = from[i]) {
-    used[i] = 1;
+    used[i] = true;
     cars.back().push_back(rides[i].id);
   }
 
