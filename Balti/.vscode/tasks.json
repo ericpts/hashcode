@@ -1,0 +1,18 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "1.0.0",
+    "tasks": [
+        {
+            "taskName": "Compile source",
+            "type": "shell",
+            "command": "g++ -std=c++14 -O2 -o source source.cpp",
+            "problemMatcher": []
+        },
+        {
+            "taskName": "Compile & Run source",
+            "type": "shell",
+            "command": "g++ -std=c++14 -O2 -o source source.cpp & ./source"
+        }
+    ]
+}
