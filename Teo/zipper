@@ -1,0 +1,3 @@
+# source code zip
+
+zip -o submit A.cpp run test.py
