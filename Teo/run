@@ -1,0 +1,5 @@
+# compile and run
+
+rm -f A                      &&
+g++ -std=c++11 -o A A.cpp    &&
+cat $@ | ./A
