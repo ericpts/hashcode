@@ -23,7 +23,17 @@ struct Ride {
   Ride(int _sx=0, int _sy=0, int _fx=0, int _fy=0, int _s=0, int _f=0, int _id=0)
     : sx(_sx), sy(_sx), fx(_fx), fy(_fy), s(_s), f(_f), id(_id)
   {
+    cout << "const" << endl;
     dist = abs(fx - sx) + abs(fy - sy);
+    cout << sx << sy << fx << fy << s << f << endl;
+    print();
+  }
+  void print() {
+    cout << "Ride:" << endl;
+    cout << sx << ' ' << sy << ' ' << fx << ' ' << fy << endl;
+    cout << s << ' ' << f << endl;
+    cout << dist << endl;
+    cout << id << endl << endl;
   }
 };
 
@@ -44,9 +54,10 @@ void readin(string filename) {
   // starting node;
   rides.emplace_back(0, 0, 0, 0, 0, 0);
 
-  for (int i = 0; i < N; i += 1) {
+  for (int i = 1; i <= N; i += 1) {
     int sx, sy, fx, fy, s, f;
     fin >> sx >> sy >> fx >> fy >> s >> f;
+    cout << sx << sy << fx << fy << s << f << endl;
     rides.emplace_back(sx, sy, fx, fy, s, f, i);
   }
 
@@ -64,12 +75,14 @@ inline int dist(int i, int j) {
 }
 
 void makeGraph() {
-  for (int i = 0; i <= N; i += 1) {
+  for (int i = 0; i < N; i += 1) {
     for (int j = 1; j <= N; j += 1) {
-      cerr << i << ' ' << j << endl;
+      cerr << i << ' ' << rides[j].id << endl;
+      rides[j].print();
       // worst time
       int total = rides[i].s + rides[i].dist + dist(i, j) + rides[j].dist;
-      cerr << total << endl;
+      cerr << dist(i,j) << ' ' << rides[j].dist << endl;
+      cerr << total << endl << endl;
 
       if (total <= rides[i].f) {
         graph[i].emplace_back(j);
